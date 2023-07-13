@@ -1,0 +1,28 @@
+---
+
+- name: LAUNCHING EC2-INSTANCE
+  community.aws.ec2_instance: 
+    key_name: "{{ key_pair }}"
+    instance_type: "{{ inst_flav }}"
+    image_id: "{{ ami }}"
+    security_group: "{{ sg_result.group_id }}" 
+    region: "{{ reg_name }}"
+    state: "{{ state }}"
+    vpc_subnet_id: "{{ subnet_result.subnet.id }}"
+    wait: true
+    tags: 
+      Name: "{{ inst_tag }}"
+    aws_access_key: "{{ access_key }}"
+    aws_secret_key: "{{ secret_key }}"
+  register: instance
+
+- name: ADDING HOST OF INSTANCE
+  add_host:
+    name: "{{ instance.instances[0].public_ip_address }}"
+    groupname: ec2_wordpress
+
+- name: WAIT FOR SSH
+  wait_for:
+    host: "{{ instance.instances[0].public_dns_name }}"
+    port: 22
+    state: started

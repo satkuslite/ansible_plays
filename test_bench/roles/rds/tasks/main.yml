@@ -1,0 +1,58 @@
+---
+
+- name: rds
+  amazon.aws.rds_instance:
+    region: "{{ reg_name }}"
+    db_instance_identifier: "{{ inst_name }}"
+    engine: "{{ eng_name }}"
+    vpc_security_group_ids: "{{ sg_result.group_id }}"
+    allocated_storage: 10
+    instance_type: "{{ inst_type }}"
+    publicly_accessible: no
+    username: "{{ db_user }}"
+    password: "{{ db_pass }}"
+    db_name: "{{ db_name }}"
+    state: "{{ state }}"
+    aws_access_key: "{{ access_key }}"
+    aws_secret_key: "{{ secret_key }}"
+    tags: 
+        Application: wordpress
+  register: rds_result
+
+#- name: Gather AWS RDS instance info
+#  community.aws.rds_instance_info:
+#    region: "{{ reg_name }}"
+#    aws_access_key: "{{ access_key }}"
+#    aws_secret_key: "{{ secret_key }}"
+#    db_instance_identifier: "{{ inst_name }}"
+#  register: rds_instance_info
+
+#- name: Get RDS endpoint
+#  debug:
+#    var: rds_instance.region
+
+#- name: Display RDS endpoint
+#  debug:
+#    var: rds_info_result.rds_instance_info.endpoint
+
+#- name: WAIT FOR endpoint
+#  wait_for:
+#    host: "{{ rds_result.instances[0].endpoint }}"
+#    port: 22
+#    state: started
+
+#- name: Wait for AWS RDS instance to be available
+#  pause:
+#    seconds: 30
+#    register: pause_result
+#    until: rds_result.db_instance_status == 'available'
+#    retries: 20
+#    delay: 30
+
+#- name: Gather AWS RDS instance info
+#  community.aws.rds_instance_info:
+#    region: "{{ reg_name }}"
+#    aws_access_key: "{{ access_key }}"
+#    aws_secret_key: "{{ secret_key }}"
+#    db_instance_identifier: "{{ inst_name }}"
+#  register: rds_instance_info

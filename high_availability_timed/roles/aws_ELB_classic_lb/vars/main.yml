@@ -1,0 +1,5 @@
+---
+
+inst_tag: wordpress
+ami: ami-06b09bfacae1453cb
+inst_flav: t2.micro

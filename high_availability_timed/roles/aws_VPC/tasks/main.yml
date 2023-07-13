@@ -1,0 +1,10 @@
+- name: Create VPC
+  amazon.aws.ec2_vpc_net:
+    name: my_vpc
+    cidr_block: 10.0.0.0/16
+    region: "{{ reg_name }}"
+    state: "{{ state }}"
+    aws_access_key: "{{ access_key }}"
+    aws_secret_key: "{{ secret_key }}"
+  register: vpc_result
+  

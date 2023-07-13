@@ -1,0 +1,20 @@
+- name: Set up public subnet route table
+  amazon.aws.ec2_vpc_route_table:
+    vpc_id: "{{ vpc_result.vpc.id }}"
+    region: "{{ reg_name }}"
+    aws_access_key: "{{ access_key }}"
+    aws_secret_key: "{{ secret_key }}"
+    tags:
+      Name: Public
+    subnets:
+      - "subnet-07675a9fb9f1e695c"
+      - "subnet-0876df6e1897d52d3"
+    routes:
+      - dest: 0.0.0.0/0
+        gateway_id: "{{ igw.gateway_id }}"
+      - dest: ::/0
+        gateway_id: "{{ igw.gateway_id }}"
+  register: public_route_table
+# - name: Display Subnet Info
+#   debug:
+#     var: subnet_result.subnet
