@@ -1,20 +1,31 @@
-- name: Create Subnet
+- name: Create Subnet 1
   amazon.aws.ec2_vpc_subnet:
-    state: present
+    state: "{{ state }}"
     vpc_id: "{{ vpc_result.vpc.id }}"
-    cidr: "{{ item.cidr }}"
-    az: "{{ item.availability_zone }}"
+    cidr: "{{ cidr1 }}"
+    az: "{{ availability_zone_1 }}"
     region: "{{ reg_name }}"
     map_public: true
     aws_access_key: "{{ access_key }}"
     aws_secret_key: "{{ secret_key }}"
     tags: 
-      Name: test_subnet
-  loop:
-    - { subnet_result: subnet_result_1, cidr: 10.0.1.0/24, availability_zone: us-east-1a }
-    - { subnet_result: subnet_result_2, cidr: 10.0.2.0/24, availability_zone: us-east-1b }
-  register: subnet_result
+      Name: "{{ name }}"
+  register: subnet_result_1
 
-- name: Display Subnet Info
-  debug:
-    var: subnet_result.subnet.id
+- name: Create Subnet 2
+  amazon.aws.ec2_vpc_subnet:
+    state: "{{ state }}"
+    vpc_id: "{{ vpc_result.vpc.id }}"
+    cidr: "{{ cidr2 }}"
+    az: "{{ availability_zone_2 }}"
+    region: "{{ reg_name }}"
+    map_public: true
+    aws_access_key: "{{ access_key }}"
+    aws_secret_key: "{{ secret_key }}"
+    tags: 
+      Name: "{{ name }}"
+  register: subnet_result_2
+
+# - name: Display Subnet Info
+#   debug:
+#     var: subnet_result_1.subnet.id

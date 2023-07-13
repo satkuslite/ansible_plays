@@ -1,6 +1,6 @@
 - name: Create an ec2 launch template
   community.aws.ec2_launch_template:
-    name: "my_template"
+    name: "{{ name }}"
     image_id: "{{ ami }}"
     key_name: "{{ key_pair }}"
     instance_type: "{{ inst_flav }}"

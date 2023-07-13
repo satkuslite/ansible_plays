@@ -1,6 +1,6 @@
 - name: Create Security Group
   amazon.aws.ec2_security_group:
-    name: "{{ wp_sg_name }}"
+    name: "{{ name }}"
     description: WP Security Group
     region: "{{ reg_name }}"
     vpc_id: "{{ vpc_result.vpc.id }}"

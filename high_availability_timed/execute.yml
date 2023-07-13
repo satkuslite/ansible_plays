@@ -5,13 +5,12 @@
       - vars.yml
   
   roles:
-    - security_group
-    # - ec2-instance
-    - auto_scaling
-   # - rds
+    - aws_VPC
+    - aws_SUBNET
+    - aws_INT_gateway
+    - aws_vpc_ROUTE_table
+    - aws_Security_group
+    - aws_EC2_launch_template
+    - aws_ELB_classic_lb
+    - aws_AutoScaling_group
 
-# - hosts: ec2_wordpress
-#   gather_facts: no
-    
-#   roles:
-#     - wordpress

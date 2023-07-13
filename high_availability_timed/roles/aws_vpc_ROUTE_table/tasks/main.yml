@@ -5,16 +5,14 @@
     aws_access_key: "{{ access_key }}"
     aws_secret_key: "{{ secret_key }}"
     tags:
-      Name: Public
+      Name: "{{ tags_name }}"
     subnets:
-      - "subnet-07675a9fb9f1e695c"
-      - "subnet-0876df6e1897d52d3"
+      - "{{ subnet_result_1.subnet.id }}"
+      - "{{ subnet_result_2.subnet.id }}"
     routes:
       - dest: 0.0.0.0/0
         gateway_id: "{{ igw.gateway_id }}"
       - dest: ::/0
         gateway_id: "{{ igw.gateway_id }}"
-  register: public_route_table
-# - name: Display Subnet Info
-#   debug:
-#     var: subnet_result.subnet
+  # register: public_route_table
+
