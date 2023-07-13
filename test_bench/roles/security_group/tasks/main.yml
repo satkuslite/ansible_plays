@@ -1,0 +1,81 @@
+- name: Create VPC
+  amazon.aws.ec2_vpc_net:
+    name: my_vpc
+    cidr_block: 10.0.0.0/16
+    region: "{{ reg_name }}"
+    state: "{{ state }}"
+    aws_access_key: "{{ access_key }}"
+    aws_secret_key: "{{ secret_key }}"
+  register: vpc_result
+  
+- name: Create Subnet
+  amazon.aws.ec2_vpc_subnet:
+    state: present
+    vpc_id: "{{ vpc_result.vpc.id }}"
+    cidr: "{{ item.cidr }}"
+    az: "{{ item.availability_zone }}"
+    region: "{{ reg_name }}"
+    map_public: true
+    aws_access_key: "{{ access_key }}"
+    aws_secret_key: "{{ secret_key }}"
+    tags: 
+      Name: test_subnet
+  loop:
+    - { subnet_result: subnet_result_1, cidr: 10.0.1.0/24, availability_zone: us-east-1a }
+    - { subnet_result: subnet_result_2, cidr: 10.0.2.0/24, availability_zone: us-east-1b }
+  register: subnet_result
+
+- name: Display Subnet Info
+  debug:
+    var: subnet_result.subnet.id
+
+- name: Create Internet gateway
+  amazon.aws.ec2_vpc_igw:
+    vpc_id: "{{ vpc_result.vpc.id }}"
+    state: present
+    region: "{{ reg_name }}"
+    aws_access_key: "{{ access_key }}"
+    aws_secret_key: "{{ secret_key }}"
+  register: igw
+
+- name: Set up public subnet route table
+  amazon.aws.ec2_vpc_route_table:
+    vpc_id: "{{ vpc_result.vpc.id }}"
+    region: "{{ reg_name }}"
+    aws_access_key: "{{ access_key }}"
+    aws_secret_key: "{{ secret_key }}"
+    tags:
+      Name: Public
+    subnets:
+      - "subnet-07675a9fb9f1e695c"
+      - "subnet-0876df6e1897d52d3"
+    routes:
+      - dest: 0.0.0.0/0
+        gateway_id: "{{ igw.gateway_id }}"
+      - dest: ::/0
+        gateway_id: "{{ igw.gateway_id }}"
+  register: public_route_table
+# - name: Display Subnet Info
+#   debug:
+#     var: subnet_result.subnet
+
+- name: Create Security Group
+  amazon.aws.ec2_security_group:
+    name: "{{ wp_sg_name }}"
+    description: WP Security Group
+    region: "{{ reg_name }}"
+    vpc_id: "{{ vpc_result.vpc.id }}"
+    aws_access_key: "{{ access_key }}"
+    aws_secret_key: "{{ secret_key }}"
+    rules:
+      - proto: tcp
+        from_port: 22
+        to_port: 22
+        cidr_ip: 0.0.0.0/0
+      - proto: tcp
+        from_port: 80
+        to_port: 80
+        cidr_ip: 0.0.0.0/0
+    state: "{{ state }}"
+  register: sg_result
+

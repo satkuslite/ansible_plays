@@ -1,0 +1,22 @@
+---
+- name: Installing dependencies for wp
+  package:
+    name:
+      - httpd
+      - php-mysqlnd
+      - php-cli
+      - php-pdo
+      - php-fpm
+      - php-json
+    state: present
+
+- name: extract tar file
+  ansible.builtin.unarchive:
+    src: https://wordpress.org/latest.tar.gz
+    dest: /var/www/html/
+    remote_src: yes
+
+- name: start apache httpd
+  service:
+    name: httpd
+    state: started

@@ -1,0 +1,107 @@
+- name: Create an ec2 launch template
+  community.aws.ec2_launch_template:
+    name: "my_template"
+    image_id: "{{ ami }}"
+    key_name: "{{ key_pair }}"
+    instance_type: "{{ inst_flav }}"
+    region: "{{ reg_name }}"
+    security_group_ids: "{{ sg_result.group_id }}"
+    aws_access_key: "{{ access_key }}"
+    aws_secret_key: "{{ secret_key }}"
+  register: launch
+
+# - name: Create a target group with instance targets
+#   community.aws.elb_target_group:
+#     name: mytargetgroup
+#     protocol: HTTP
+#     region: "{{ reg_name }}"
+#     aws_access_key: "{{ access_key }}"
+#     aws_secret_key: "{{ secret_key }}"
+#     port: 80
+#     vpc_id: "{{ vpc_result.vpc.id }}"
+#     state: present
+
+- amazon.aws.elb_classic_lb:
+    name: myelb
+    state: present
+    region: "{{ reg_name }}"
+    security_group_ids: "{{ sg_result.group_id }}"
+    subnets:
+      - "subnet-07675a9fb9f1e695c"
+      - "subnet-0876df6e1897d52d3"
+    aws_access_key: "{{ access_key }}"
+    aws_secret_key: "{{ secret_key }}"
+    # zones:
+    #   - us-east-1a
+    #   - us-east-1d
+    listeners:
+      - protocol: http # options are http, https, ssl, tcp
+        load_balancer_port: 80
+        instance_port: 80
+        proxy_protocol: True
+
+# - name: Create an ELB and attach a listener
+#   community.aws.elb_application_lb:
+#     name: myelb
+#     region: "{{ reg_name }}"
+#     aws_access_key: "{{ access_key }}"
+#     aws_secret_key: "{{ secret_key }}"
+#     security_groups: "{{ sg_result.group_id }}" 
+#     subnets:
+#       - "subnet-07675a9fb9f1e695c"
+#       - "subnet-0876df6e1897d52d3"
+
+#     listeners:
+#       - Protocol: HTTP 
+#         Port: 80 
+#         # instance_port: 80
+#         DefaultActions:
+#           - Type: forward # Required. Only 'forward' is accepted at this time
+#             TargetGroupName: mytargetgroup # Required. The name of the target group
+#     state: present
+
+
+
+- amazon.aws.autoscaling_group:
+    name: myauto
+    load_balancers: myelb
+    availability_zones: 
+      - 'us-east-1a'
+      - 'us-east-1b'
+    launch_template:
+      launch_template_name: 'my_template'
+    min_size: 1
+    max_size: 6
+    desired_capacity: 2
+    # target_group_arns: mytargetgroup
+    # security_groups: "{{ sg_result.group_id }}"
+    vpc_zone_identifier:
+      - "subnet-07675a9fb9f1e695c"
+      - "subnet-0876df6e1897d52d3"
+    region: "{{ reg_name }}"
+    # vpc_zone_identifier: "{{ subnet_result.subnet.id }}"
+    aws_access_key: "{{ access_key }}"
+    aws_secret_key: "{{ secret_key }}"
+    tags:
+      - environment: production
+      - key: TargetGroupName
+        value: mytargetgroup
+        propagate_at_launch: true
+  register: autoscale
+
+- name: Gather information about all instances
+  amazon.aws.ec2_instance_info:
+    region: "{{ reg_name }}"
+    aws_access_key: "{{ access_key }}"
+    aws_secret_key: "{{ secret_key }}"
+  register: instance_info
+
+- name: Display insctance Info
+  debug:
+    var: instance_info.instances[0].public_ip_address
+    var: instance_info.instances[1].public_ip_address
+
+- name: ADDING HOST OF INSTANCE
+  add_host:
+    name: "{{ instance_info.instances[1].public_ip_address }}"
+    groupname: ec2_wordpress

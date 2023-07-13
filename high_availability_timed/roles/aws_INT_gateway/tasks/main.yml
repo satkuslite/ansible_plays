@@ -1,0 +1,8 @@
+- name: Create Internet gateway
+  amazon.aws.ec2_vpc_igw:
+    vpc_id: "{{ vpc_result.vpc.id }}"
+    state: present
+    region: "{{ reg_name }}"
+    aws_access_key: "{{ access_key }}"
+    aws_secret_key: "{{ secret_key }}"
+  register: igw

@@ -1,0 +1,43 @@
+- amazon.aws.autoscaling_group:
+    name: myauto
+    load_balancers: myelb
+    availability_zones: 
+      - 'us-east-1a'
+      - 'us-east-1b'
+    launch_template:
+      launch_template_name: 'my_template'
+    min_size: 1
+    max_size: 6
+    desired_capacity: 2
+    # target_group_arns: mytargetgroup
+    # security_groups: "{{ sg_result.group_id }}"
+    vpc_zone_identifier:
+      - "subnet-07675a9fb9f1e695c"
+      - "subnet-0876df6e1897d52d3"
+    region: "{{ reg_name }}"
+    # vpc_zone_identifier: "{{ subnet_result.subnet.id }}"
+    aws_access_key: "{{ access_key }}"
+    aws_secret_key: "{{ secret_key }}"
+    tags:
+      - environment: production
+      - key: TargetGroupName
+        value: mytargetgroup
+        propagate_at_launch: true
+  register: autoscale
+
+- name: Gather information about all instances
+  amazon.aws.ec2_instance_info:
+    region: "{{ reg_name }}"
+    aws_access_key: "{{ access_key }}"
+    aws_secret_key: "{{ secret_key }}"
+  register: instance_info
+
+- name: Display insctance Info
+  debug:
+    var: instance_info.instances[0].public_ip_address
+    var: instance_info.instances[1].public_ip_address
+
+- name: ADDING HOST OF INSTANCE
+  add_host:
+    name: "{{ instance_info.instances[1].public_ip_address }}"
+    groupname: ec2_wordpress

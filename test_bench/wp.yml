@@ -1,0 +1,17 @@
+# - hosts: localhost
+#   gather_facts: no
+#   vars_files:
+#       - cred.yml
+#       - vars.yml
+  
+  # roles:
+  #   - security_group
+  #   # - ec2-instance
+  #   - auto_scaling
+  #  # - rds
+
+- hosts: wp_servers
+  gather_facts: no
+    
+  roles:
+    - wordpress
