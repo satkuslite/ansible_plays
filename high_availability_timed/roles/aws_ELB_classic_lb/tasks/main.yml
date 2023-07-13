@@ -1,11 +1,11 @@
 - amazon.aws.elb_classic_lb:
-    name: myelb
-    state: present
+    name: "{{ name }}"
+    state: "{{ state }}"
     region: "{{ reg_name }}"
     security_group_ids: "{{ sg_result.group_id }}"
     subnets:
-      - "subnet-07675a9fb9f1e695c"
-      - "subnet-0876df6e1897d52d3"
+      - "{{ subnet_result_1.subnet.id }}"
+      - "{{ subnet_result_2.subnet.id }}"
     aws_access_key: "{{ access_key }}"
     aws_secret_key: "{{ secret_key }}"
     listeners:
@@ -13,3 +13,4 @@
         load_balancer_port: 80
         instance_port: 80
         proxy_protocol: True
+  register: ELB

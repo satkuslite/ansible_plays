@@ -1,5 +1,7 @@
 ---
-
-inst_tag: wordpress
-ami: ami-06b09bfacae1453cb
+name: autoscaling
+inst_tag: high_availability
 inst_flav: t2.micro
+min_size: 1
+max_size: 4
+desired_capacity: 2
