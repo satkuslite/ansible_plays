@@ -17,6 +17,32 @@
         propagate_at_launch: true
   register: autoscale
 
+- name: Create scheduled start for autoscaling group
+  community.aws.autoscaling_scheduled_action:
+    region: "{{ reg_name }}"
+    autoscaling_group_name: "{{ name }}"
+    scheduled_action_name: start
+    recurrence: "{{ start_time }}"
+    min_size: 2
+    desired_capacity: 2
+    aws_access_key: "{{ access_key }}"
+    aws_secret_key: "{{ secret_key }}"
+    state: "{{ state }}"
+  register: scheduled_action
+
+- name: Create scheduled stop for autoscaling group
+  community.aws.autoscaling_scheduled_action:
+    region: "{{ reg_name }}"
+    autoscaling_group_name: "{{ name }}"
+    scheduled_action_name: end
+    recurrence: "{{ end_time }}"
+    min_size: 0
+    desired_capacity: 0
+    aws_access_key: "{{ access_key }}"
+    aws_secret_key: "{{ secret_key }}"
+    state: "{{ state }}"
+  register: scheduled_action
+
 - name: Gather information about all instances
   amazon.aws.ec2_instance_info:
     region: "{{ reg_name }}"
@@ -24,10 +50,14 @@
     aws_secret_key: "{{ secret_key }}"
   register: instance_info
 
-# - name: Display instance Info
-#   debug:
-#     var: instance_info.instances[0].public_ip_address
-#     var: instance_info.instances[1].public_ip_address
+- name: Display instance Info
+  debug:
+    var: instance_info.instances[0].public_ip_address
+  debug:
+    var: instance_info.instances[1].public_ip_address
+    # var: instance_info.instances[1].public_ip_address
+
+
 
 # - name: ADDING HOST OF INSTANCE
 #   add_host:
