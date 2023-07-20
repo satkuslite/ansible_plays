@@ -1,5 +1,5 @@
 ---
 name: my_template
-inst_tag: wordpress
+inst_tag: server
 ami: ami-06b09bfacae1453cb
 inst_flav: t2.micro

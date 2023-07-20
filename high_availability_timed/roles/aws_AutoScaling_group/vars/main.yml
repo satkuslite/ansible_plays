@@ -5,3 +5,5 @@ inst_flav: t2.micro
 min_size: 1
 max_size: 4
 desired_capacity: 2
+start_time: "0 9 * * MON-FRI"
+end_time: "0 18 * * MON-FRI"
